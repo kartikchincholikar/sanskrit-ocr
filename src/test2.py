@@ -1,14 +1,9 @@
 import pandas as pd
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import difflib
-import numpy as np
-import matplotlib.image as mpimg
-from PIL import Image
 import io
 import base64
 import json
-import os
+from PIL import Image
 
 BASE_PATH = "C:\\Users\\intro\\Documents\\sanskrit_ocr_paper\\distill-blog-template\\assets\\post-correction\\"
 
@@ -78,8 +73,7 @@ def create_static_text_comparison_widget():
     
     # Pre-process data for all indices
     processed_data = []
-    # for index in range(len(df)):
-    for index in range(10):
+    for index in range(min(10, len(df))):
         ocr_text, gt_text = generate_highlighted_text(df['input_text'].iloc[index], df['target_text'].iloc[index])
         post_text, gt_text2 = generate_highlighted_text(df['predicted_text'].iloc[index], df['target_text'].iloc[index])
         
@@ -96,137 +90,138 @@ def create_static_text_comparison_widget():
             'gt_text2': gt_text2
         })
     
-    # Create HTML with JavaScript for client-side navigation
-    html = """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            .widget-container {
-                font-family: Arial, sans-serif;
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 20px;
-            }
-            .nav-buttons {
-                margin-bottom: 20px;
-                display: flex;
-                gap: 10px;
-            }
-            button {
-                padding: 8px 16px;
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                cursor: pointer;
-                border-radius: 4px;
-            }
-            button:hover {
-                background-color: #45a049;
-            }
-            .image-container {
-                margin-bottom: 20px;
-                text-align: center;
-            }
-            .image-container img {
-                max-width: 100%;
-                max-height: 400px;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 20px;
-            }
-            th, td {
-                border: 1px solid #ddd;
-                padding: 12px;
-                text-align: left;
-            }
-            th {
-                background-color: paleturquoise;
-            }
-            tr:nth-child(even) {
-                background-color: lavender;
-            }
-            .legend span {
-                margin-right: 15px;
-            }
-            .text-container {
-                overflow-x: auto;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="widget-container">
-            <h2 id="title">Text Comparison - Index: 0</h2>
-            
-            <div class="nav-buttons">
-                <button onclick="previousItem()">Previous</button>
-                <span id="index-display">Item 1 of DATA_LENGTH</span>
-                <button onclick="nextItem()">Next</button>
-            </div>
-            
-            <div class="image-container">
-                <img id="line-image" src="" alt="Line Image">
-            </div>
-            
-            <table>
+    # Create the fragment HTML - no DOCTYPE, html, head, or body tags
+    fragment_html = """
+    <style>
+        .widget-container {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .nav-buttons {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .nav-button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .nav-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .nav-button:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+        .image-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .image-container img {
+            max-width: 100%;
+            max-height: 400px;
+        }
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .compare-table th, .compare-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .compare-table th {
+            background-color: paleturquoise;
+        }
+        .compare-table tr:nth-child(even) {
+            background-color: lavender;
+        }
+        .legend span {
+            margin-right: 15px;
+        }
+        .text-container {
+            overflow-x: auto;
+        }
+    </style>
+
+    <div class="widget-container">
+        <h2 id="ocr-title">Text Comparison - Index: 0</h2>
+        
+        <div class="nav-buttons">
+            <button id="prev-button" class="nav-button">Previous</button>
+            <span id="index-display">Item 1 of DATA_LENGTH</span>
+            <button id="next-button" class="nav-button">Next</button>
+        </div>
+        
+        <div class="image-container">
+            <img id="line-image" src="" alt="Line Image">
+        </div>
+        
+        <table class="compare-table">
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+            </tr>
+            <tr>
+                <td>CER Before Post Correction</td>
+                <td id="pre-cer"></td>
+            </tr>
+            <tr>
+                <td>CER After Post Correction</td>
+                <td id="post-cer"></td>
+            </tr>
+            <tr>
+                <td>Legend</td>
+                <td class="legend">
+                    <span style="color:blue;font-weight:bold">Blue</span>: Extra 
+                    <span style="color:red;font-weight:bold">Red</span>: Missing 
+                    <span style="color:yellow;background-color:#eee;font-weight:bold">Yellow</span>: Replaced
+                </td>
+            </tr>
+        </table>
+        
+        <div class="text-container">
+            <table class="compare-table">
                 <tr>
-                    <th>Metric</th>
-                    <th>Value</th>
+                    <th>Type</th>
+                    <th>Text</th>
                 </tr>
                 <tr>
-                    <td>CER Before Post Correction</td>
-                    <td id="pre-cer"></td>
+                    <td>OCR Output</td>
+                    <td id="ocr-text"></td>
                 </tr>
                 <tr>
-                    <td>CER After Post Correction</td>
-                    <td id="post-cer"></td>
+                    <td>Ground Truth</td>
+                    <td id="gt-text"></td>
                 </tr>
                 <tr>
-                    <td>Legend</td>
-                    <td class="legend">
-                        <span style="color:blue;font-weight:bold">Blue</span>: Extra 
-                        <span style="color:red;font-weight:bold">Red</span>: Missing 
-                        <span style="color:yellow;background-color:#eee;font-weight:bold">Yellow</span>: Replaced
-                    </td>
+                    <td>Post Corrected</td>
+                    <td id="post-text"></td>
+                </tr>
+                <tr>
+                    <td>Ground Truth</td>
+                    <td id="gt-text2"></td>
                 </tr>
             </table>
-            
-            <div class="text-container">
-                <table>
-                    <tr>
-                        <th>Type</th>
-                        <th>Text</th>
-                    </tr>
-                    <tr>
-                        <td>OCR Output</td>
-                        <td id="ocr-text"></td>
-                    </tr>
-                    <tr>
-                        <td>Ground Truth</td>
-                        <td id="gt-text"></td>
-                    </tr>
-                    <tr>
-                        <td>Post Corrected</td>
-                        <td id="post-text"></td>
-                    </tr>
-                    <tr>
-                        <td>Ground Truth</td>
-                        <td id="gt-text2"></td>
-                    </tr>
-                </table>
-            </div>
         </div>
+    </div>
 
-        <script>
+    <script>
+        (function() {
             // Data is embedded directly in the HTML
             const data = DATA_PLACEHOLDER;
             let currentIndex = 0;
             
             function updateDisplay() {
                 const item = data[currentIndex];
-                document.getElementById('title').textContent = `Text Comparison - Index: ${item.index}`;
+                document.getElementById('ocr-title').textContent = `Text Comparison - Index: ${item.index}`;
                 document.getElementById('index-display').textContent = `Item ${currentIndex + 1} of ${data.length}`;
                 document.getElementById('line-image').src = item.image;
                 document.getElementById('pre-cer').textContent = item.pre_cer;
@@ -237,6 +232,10 @@ def create_static_text_comparison_widget():
                 document.getElementById('gt-text').innerHTML = item.gt_text;
                 document.getElementById('post-text').innerHTML = item.post_text;
                 document.getElementById('gt-text2').innerHTML = item.gt_text2;
+                
+                // Update button states
+                document.getElementById('prev-button').disabled = (currentIndex === 0);
+                document.getElementById('next-button').disabled = (currentIndex === data.length - 1);
             }
             
             function previousItem() {
@@ -253,41 +252,51 @@ def create_static_text_comparison_widget():
                 }
             }
             
+            // Set up event listeners
+            document.getElementById('prev-button').addEventListener('click', previousItem);
+            document.getElementById('next-button').addEventListener('click', nextItem);
+            
             // Initialize display
+            document.addEventListener('DOMContentLoaded', function() {
+                updateDisplay();
+            });
+            
+            // Initialize immediately as well (in case script runs after DOM is loaded)
             updateDisplay();
-        </script>
+        })();
+    </script>
+    """
+    
+    # Replace placeholders with actual data
+    fragment_html = fragment_html.replace('DATA_PLACEHOLDER', json.dumps(processed_data))
+    fragment_html = fragment_html.replace('DATA_LENGTH', str(len(processed_data)))
+    
+    # Create full HTML version for direct viewing
+    full_html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>OCR Text Comparison Widget</title>
+    </head>
+    <body>
+        {fragment_html}
     </body>
     </html>
     """
     
-    # Replace placeholders with actual data
-    html = html.replace('DATA_PLACEHOLDER', json.dumps(processed_data))
-    html = html.replace('DATA_LENGTH', str(len(processed_data)))
-    
-    # Ensure directory exists
-    # os.makedirs('fragments', exist_ok=True)
-    
-    # Save the full HTML file for testing
-    # with open('C:\\Users\\intro\\Documents\\sanskrit_ocr_paper\\distill-blog-template\\src\\fragments\\ocrfull.html', 'w', encoding='utf-8') as f:
-    #     f.write(html)
-    
-    # Extract just the body content for the fragment
-    start_idx = html.find('<div class="widget-container">')
-    end_idx = html.find('</body>')
-    fragment = html[start_idx:end_idx]
-    
-    # Add the necessary styles and scripts
-    styles = html[html.find('<style>'):html.find('</style>') + 8]
-    scripts = html[html.find('<script>'):html.find('</script>') + 9]
-    
-    fragment = styles + fragment + scripts
-    
     # Save as fragment
-    with open('C:\\Users\\intro\Documents\\sanskrit_ocr_paper\\distill-blog-template\\src\\fragments\\ocr.html', 'w', encoding='utf-8') as f:
-        f.write(fragment)
+    fragment_path = 'C:\\Users\\intro\\Documents\\sanskrit_ocr_paper\\distill-blog-template\\src\\fragments\\ocr.html'
+    with open(fragment_path, 'w', encoding='utf-8') as f:
+        f.write(fragment_html)
     
-    print("Widget saved as fragments/text_comparison_widget.html")
-    print("Full HTML version saved as fragments/text_comparison_widget_full.html")
+    # # Save full HTML version for direct viewing
+    # full_path = 'C:\\Users\\intro\\Documents\\sanskrit_ocr_paper\\distill-blog-template\\src\\fragments\\text_comparison_widget_full.html'
+    # with open(full_path, 'w', encoding='utf-8') as f:
+    #     f.write(full_html)
+    
+    print(f"Fragment saved at: {fragment_path}")
+    # print(f"Full HTML version saved at: {full_path}")
 
 # Load the data
 def load_data():
@@ -321,4 +330,5 @@ def load_data():
         })
 
 # Run the function to create the widget
-create_static_text_comparison_widget()
+if __name__ == "__main__":
+    create_static_text_comparison_widget()
