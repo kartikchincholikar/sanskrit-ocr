@@ -18,8 +18,8 @@ def generate_highlighted_text(line1, line2):
     while i < len(diff):
         if diff[i].startswith('- ') and i+1 < len(diff) and diff[i+1].startswith('+ '):
             # Replace operation
-            highlighted_line1.append(f'<span style="background-color:yellow;font-weight:bold">{diff[i][2:]}</span>')
-            highlighted_line2.append(f'<span style="background-color:yellow;font-weight:bold">{diff[i+1][2:]}</span>')
+            highlighted_line1.append(f'<span style="background-color:#f58231;font-weight:bold">{diff[i][2:]}</span>')
+            highlighted_line2.append(f'<span style="background-color:#f58231;font-weight:bold">{diff[i+1][2:]}</span>')
             i += 2
         elif diff[i].startswith('- '):
             # Delete operation
@@ -28,8 +28,8 @@ def generate_highlighted_text(line1, line2):
             i += 1
         elif diff[i].startswith('+ '):
             # Insert operation
-            highlighted_line1.append(f'<span style="background-color:lightcoral;font-weight:bold"> </span>')
-            highlighted_line2.append(f'<span style="background-color:lightcoral;font-weight:bold">{diff[i][2:]}</span>')
+            highlighted_line1.append(f'<span style="background-color:#800000;font-weight:bold"> </span>')
+            highlighted_line2.append(f'<span style="background-color:#800000;font-weight:bold">{diff[i][2:]}</span>')
             i += 1
         elif diff[i].startswith('  '):
             # Unchanged characters
@@ -92,39 +92,19 @@ def create_static_text_comparison_widget():
     
     # Create the fragment HTML - no DOCTYPE, html, head, or body tags
     fragment_html = """
-    <style>
+        <style>
         .widget-container {
             font-family: Arial, sans-serif;
             max-width: 100%;
-            margin: 0 auto;
-            padding: 10px;
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
-        .nav-buttons {
-            margin-bottom: 15px;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-        .nav-button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .nav-button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .nav-button:hover:not(:disabled) {
-            background-color: #45a049;
-        }
         .image-container {
-            margin-bottom: 0;
+            margin: 0;
+            padding: 0;
             text-align: center;
-            min-height: 150px;
+            min-height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -136,105 +116,114 @@ def create_static_text_comparison_widget():
         .text-container {
             width: 100%;
             overflow-x: auto;
+            margin-top: 0;
         }
         .compare-table {
             width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
+            margin-top: 0;
         }
         .compare-table td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 3px;
             vertical-align: top;
         }
         .label-cell {
-            width: 110px;
+            width: 180px;
             font-weight: bold;
-            background-color: paleturquoise;
+            background-color: #ffffff;
+            font-size: 0.6em;
         }
         .text-cell {
-            line-height: 1.5;
+            line-height: 2;
+            font-size: 1.2em;
             word-wrap: break-word;
         }
-        .ocr-row {
-            background-color: lavender;
-        }
-        .post-row {
-            background-color: #f0f8ff;
-        }
-        .gt-row {
-            background-color: #f5f5f5;
-        }
+        .ocr-row { background-color: #ffffff; }
+        .post-row { background-color: #ffffff; }
+        .gt-row { background-color: #ffffff; }
         .legend {
-            padding: 8px;
+            padding: 4px;
             background-color: #f9f9f9;
             border: 1px solid #ddd;
-            margin-top: 0;
-            font-size: 0.9em;
+            margin: 0;
+            font-size: 0.8em;
+            display: flex;
+            flex-wrap: wrap;
         }
         .legend span {
-            margin-right: 15px;
+            margin-right: 10px;
             white-space: nowrap;
         }
-        
-        /* Mobile responsiveness */
+        .nav-buttons {
+            margin: 5px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .nav-button {
+            padding: 5px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .nav-button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .nav-button:hover:not(:disabled) {
+            background-color: #45a049;
+        }
         @media (max-width: 768px) {
-            .widget-container {
-                padding: 5px;
-            }
             .label-cell {
-                width: 80px;
-                font-size: 0.9em;
+                width: 70px;
+                font-size: 0.6em;
             }
             .text-cell {
-                font-size: 0.9em;
+                font-size: 1em;
             }
-            .legend {
+            .nav-button {
+                padding: 4px 8px;
                 font-size: 0.8em;
-            }
-            .legend span {
-                display: block;
-                margin-bottom: 5px;
             }
         }
     </style>
 
     <div class="widget-container">
-        <h2 id="ocr-title">Text Comparison - Index: 0</h2>
-        
-        <div class="nav-buttons">
-            <button id="prev-button" class="nav-button">Previous</button>
-            <span id="index-display">Item 1 of DATA_LENGTH</span>
-            <button id="next-button" class="nav-button">Next</button>
-        </div>
-        
         <div class="image-container">
             <img id="line-image" src="" alt="Line Image">
         </div>
         
-        <!-- Text comparison right below the image -->
         <div class="text-container">
             <table class="compare-table">
                 <tr class="ocr-row">
-                    <td class="label-cell">OCR Output<br><span id="pre-cer-label" style="font-size:0.85em;">CER: -</span></td>
+                    <td class="label-cell">OCR Output <span id="pre-cer-label" style="font-size:0.6em;">CER: -</span></td>
                     <td class="text-cell" id="ocr-text"></td>
                 </tr>
                 <tr class="post-row">
-                    <td class="label-cell">Post Corrected<br><span id="post-cer-label" style="font-size:0.85em;">CER: -</span></td>
+                    <td class="label-cell">Post Corrected <span id="post-cer-label" style="font-size:0.6em;">CER: -</span></td>
                     <td class="text-cell" id="post-text"></td>
                 </tr>
                 <tr class="gt-row">
-                    <td class="label-cell">Ground Truth<br><span style="font-size:0.85em;">CER: 0.00%</span></td>
+                    <td class="label-cell">Ground Truth <span style="font-size:0.6em;">CER: 0.00%</span></td>
                     <td class="text-cell" id="gt-text"></td>
                 </tr>
             </table>
         </div>
         
-        <!-- Legend immediately after ground truth -->
         <div class="legend">
-            <span style="color:blue;font-weight:bold">Blue</span>: Extra 
-            <span style="color:red;font-weight:bold">Red</span>: Missing 
-            <span style="color:yellow;background-color:#eee;font-weight:bold">Yellow</span>: Replaced
+            <span style="color:blue;font-weight:bold">Extra </span>  
+            <span style="color:#800000;font-weight:bold">Missing </span>   
+            <span style="color:#f58231;font-weight:bold">Replaced </span>  
+        </div>
+        
+        <div class="nav-buttons">
+            <button id="prev-button" class="nav-button">Previous</button>
+            <button id="next-button" class="nav-button">Next</button>
         </div>
     </div>
 
@@ -246,8 +235,6 @@ def create_static_text_comparison_widget():
             
             function updateDisplay() {
                 const item = data[currentIndex];
-                document.getElementById('ocr-title').textContent = `Text Comparison - Index: ${item.index}`;
-                document.getElementById('index-display').textContent = `Item ${currentIndex + 1} of ${data.length}`;
                 document.getElementById('line-image').src = item.image;
                 
                 // Update CER values in the label cells
@@ -284,12 +271,7 @@ def create_static_text_comparison_widget():
             document.getElementById('prev-button').addEventListener('click', previousItem);
             document.getElementById('next-button').addEventListener('click', nextItem);
             
-            // Initialize display
-            document.addEventListener('DOMContentLoaded', function() {
-                updateDisplay();
-            });
-            
-            // Initialize immediately as well (in case script runs after DOM is loaded)
+            // Initialize immediately
             updateDisplay();
         })();
     </script>

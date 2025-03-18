@@ -138,10 +138,6 @@ d-byline .byline {
   }
 }
 
-#title-plot {
-    margin-top: 0px;
-    margin-bottom: 0px;
-}
 
 d-contents > nav a.active {
     text-decoration: underline;
@@ -597,3 +593,75 @@ select[name="presets"] {
     border-radius: 8px;
 }
 
+
+#title-plot {
+    margin-top: 0;
+    margin-bottom: 0;
+    width: 100%;
+    overflow-x: hidden;
+    text-align: center;
+}
+
+/* Make the title responsive */
+.l-page h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+/* Container for the fragment-ocr */
+.main-plot-container {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+/* Responsive styling for the fragment-ocr container */
+.main-plot-container > div {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Make the fragment-ocr responsive */
+.fragment-ocr-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Caption styling */
+.main-plot-container p {
+    font-style: italic;
+    margin-top: 10px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Media queries for mobile responsiveness */
+@media screen and (max-width: 768px) {
+    .l-page h1 {
+        font-size: 1.8rem;
+    }
+    
+    /* Ensure the fragment-ocr is visible on mobile */
+    .main-plot-container > div {
+        transform: scale(0.8);
+        transform-origin: center top;
+    }
+}
+
+/* For very small screens */
+@media screen and (max-width: 480px) {
+    .l-page h1 {
+        font-size: 1.5rem;
+    }
+    
+    /* Further reduce size on very small screens */
+    .main-plot-container > div {
+        transform: scale(0.6);
+        transform-origin: center top;
+    }
+}
