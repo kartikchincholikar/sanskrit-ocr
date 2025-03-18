@@ -76,8 +76,7 @@ def create_static_text_comparison_widget():
     for index in range(min(10, len(df))):
         ocr_text, _ = generate_highlighted_text(df['input_text'].iloc[index], df['target_text'].iloc[index])
         post_text, _ = generate_highlighted_text(df['predicted_text'].iloc[index], df['target_text'].iloc[index])
-        # Ground truth is plain text without highlighting
-        gt_text = df['target_text'].iloc[index]
+        gt_text = df['target_text'].iloc[index]  # Ground truth with no highlighting
         
         image_src = get_image_as_base64(df['path'].iloc[index])
         
@@ -99,13 +98,13 @@ def create_static_text_comparison_widget():
             max-width: 100%;
             margin: 0 auto;
             padding: 10px;
+            box-sizing: border-box;
         }
         .nav-buttons {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             gap: 10px;
             align-items: center;
-            flex-wrap: wrap;
         }
         .nav-button {
             padding: 8px 16px;
@@ -123,9 +122,9 @@ def create_static_text_comparison_widget():
             background-color: #45a049;
         }
         .image-container {
-            margin-bottom: 20px;
+            margin-bottom: 0;
             text-align: center;
-            height: 200px; /* Fixed height for image container */
+            min-height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -133,58 +132,69 @@ def create_static_text_comparison_widget():
         .image-container img {
             max-width: 100%;
             max-height: 200px;
-            object-fit: contain;
+        }
+        .text-container {
+            width: 100%;
+            overflow-x: auto;
         }
         .compare-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            table-layout: fixed; /* Fixed layout to maintain consistent width */
+            table-layout: fixed;
         }
         .compare-table td {
             border: 1px solid #ddd;
             padding: 8px;
-            vertical-align: middle;
+            vertical-align: top;
         }
-        .label-column {
-            width: 100px; /* Fixed width for label column */
-            background-color: paleturquoise;
+        .label-cell {
+            width: 110px;
             font-weight: bold;
+            background-color: paleturquoise;
         }
-        .text-column {
-            width: calc(100% - 100px);
-            word-wrap: break-word; /* Allow text to wrap */
+        .text-cell {
+            line-height: 1.5;
+            word-wrap: break-word;
         }
-        .text-row:nth-child(even) .text-column {
+        .ocr-row {
             background-color: lavender;
         }
-        .metrics-table {
-            margin-top: 20px;
+        .post-row {
+            background-color: #f0f8ff;
+        }
+        .gt-row {
+            background-color: #f5f5f5;
+        }
+        .legend {
+            padding: 8px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            margin-top: 0;
+            font-size: 0.9em;
         }
         .legend span {
             margin-right: 15px;
+            white-space: nowrap;
         }
-        .text-container {
-            overflow-x: auto;
-        }
-        /* Make text cells consistent height */
-        .text-cell {
-            min-height: 24px;
-            line-height: 1.5;
-        }
-        /* Mobile responsive styles */
+        
+        /* Mobile responsiveness */
         @media (max-width: 768px) {
-            .label-column {
+            .widget-container {
+                padding: 5px;
+            }
+            .label-cell {
                 width: 80px;
-                font-size: 14px;
-                padding: 6px;
+                font-size: 0.9em;
             }
-            .text-column {
-                width: calc(100% - 80px);
-                font-size: 14px;
+            .text-cell {
+                font-size: 0.9em;
             }
-            .nav-buttons {
-                justify-content: center;
+            .legend {
+                font-size: 0.8em;
+            }
+            .legend span {
+                display: block;
+                margin-bottom: 5px;
             }
         }
     </style>
@@ -202,43 +212,30 @@ def create_static_text_comparison_widget():
             <img id="line-image" src="" alt="Line Image">
         </div>
         
-        <!-- Text comparison first, as requested, with no headers -->
+        <!-- Text comparison right below the image -->
         <div class="text-container">
             <table class="compare-table">
-                <tr class="text-row">
-                    <td class="label-column">OCR Output</td>
-                    <td class="text-column" id="ocr-text"></td>
+                <tr class="ocr-row">
+                    <td class="label-cell">OCR Output<br><span id="pre-cer-label" style="font-size:0.85em;">CER: -</span></td>
+                    <td class="text-cell" id="ocr-text"></td>
                 </tr>
-                <tr class="text-row">
-                    <td class="label-column">Post Corrected</td>
-                    <td class="text-column" id="post-text"></td>
+                <tr class="post-row">
+                    <td class="label-cell">Post Corrected<br><span id="post-cer-label" style="font-size:0.85em;">CER: -</span></td>
+                    <td class="text-cell" id="post-text"></td>
                 </tr>
-                <tr class="text-row">
-                    <td class="label-column">Ground Truth</td>
-                    <td class="text-column" id="gt-text"></td>
+                <tr class="gt-row">
+                    <td class="label-cell">Ground Truth<br><span style="font-size:0.85em;">CER: 0.00%</span></td>
+                    <td class="text-cell" id="gt-text"></td>
                 </tr>
             </table>
         </div>
         
-        <!-- Metrics table moved below text comparison -->
-        <table class="compare-table metrics-table">
-            <tr>
-                <td class="label-column">CER Before</td>
-                <td class="text-column" id="pre-cer"></td>
-            </tr>
-            <tr>
-                <td class="label-column">CER After</td>
-                <td class="text-column" id="post-cer"></td>
-            </tr>
-            <tr>
-                <td class="label-column">Legend</td>
-                <td class="text-column legend">
-                    <span style="color:blue;font-weight:bold">Blue</span>: Extra 
-                    <span style="color:red;font-weight:bold">Red</span>: Missing 
-                    <span style="color:yellow;background-color:#eee;font-weight:bold">Yellow</span>: Replaced
-                </td>
-            </tr>
-        </table>
+        <!-- Legend immediately after ground truth -->
+        <div class="legend">
+            <span style="color:blue;font-weight:bold">Blue</span>: Extra 
+            <span style="color:red;font-weight:bold">Red</span>: Missing 
+            <span style="color:yellow;background-color:#eee;font-weight:bold">Yellow</span>: Replaced
+        </div>
     </div>
 
     <script>
@@ -252,14 +249,16 @@ def create_static_text_comparison_widget():
                 document.getElementById('ocr-title').textContent = `Text Comparison - Index: ${item.index}`;
                 document.getElementById('index-display').textContent = `Item ${currentIndex + 1} of ${data.length}`;
                 document.getElementById('line-image').src = item.image;
-                document.getElementById('pre-cer').textContent = item.pre_cer;
-                document.getElementById('post-cer').textContent = item.post_cer;
                 
-                // Use innerHTML for OCR and post-corrected to properly render highlights
+                // Update CER values in the label cells
+                document.getElementById('pre-cer-label').textContent = `CER: ${item.pre_cer}`;
+                document.getElementById('post-cer-label').textContent = `CER: ${item.post_cer}`;
+                
+                // Use innerHTML for OCR and post-corrected to properly render the HTML
                 document.getElementById('ocr-text').innerHTML = item.ocr_text;
                 document.getElementById('post-text').innerHTML = item.post_text;
                 
-                // Use textContent for ground truth (no highlighting)
+                // Ground truth has no highlighting, use textContent
                 document.getElementById('gt-text').textContent = item.gt_text;
                 
                 // Update button states
