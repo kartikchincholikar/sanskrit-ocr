@@ -122,32 +122,48 @@ def create_static_text_comparison_widget():
         .image-container {
             margin-bottom: 20px;
             text-align: center;
+            height: 200px; /* Fixed height for image container */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .image-container img {
             max-width: 100%;
-            max-height: 400px;
+            max-height: 200px;
         }
         .compare-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            table-layout: fixed; /* Fixed layout to maintain consistent width */
         }
         .compare-table th, .compare-table td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
+            word-wrap: break-word; /* Allow text to wrap */
         }
         .compare-table th {
             background-color: paleturquoise;
+            width: 120px; /* Fixed width for label column */
         }
         .compare-table tr:nth-child(even) {
             background-color: lavender;
+        }
+        .metrics-table {
+            margin-top: 20px;
         }
         .legend span {
             margin-right: 15px;
         }
         .text-container {
             overflow-x: auto;
+            min-height: 250px; /* Minimum height for text comparison area */
+        }
+        /* Make text cells consistent height */
+        .text-cell {
+            min-height: 24px;
+            line-height: 1.5;
         }
     </style>
 
@@ -164,7 +180,30 @@ def create_static_text_comparison_widget():
             <img id="line-image" src="" alt="Line Image">
         </div>
         
-        <table class="compare-table">
+        <!-- Text comparison first, as requested -->
+        <div class="text-container">
+            <table class="compare-table">
+                <tr>
+                    <th>Type</th>
+                    <th>Text</th>
+                </tr>
+                <tr>
+                    <td>OCR Output</td>
+                    <td id="ocr-text" class="text-cell"></td>
+                </tr>
+                <tr>
+                    <td>Post Corrected</td>
+                    <td id="post-text" class="text-cell"></td>
+                </tr>
+                <tr>
+                    <td>Ground Truth</td>
+                    <td id="gt-text" class="text-cell"></td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Metrics table moved below text comparison -->
+        <table class="compare-table metrics-table">
             <tr>
                 <th>Metric</th>
                 <th>Value</th>
@@ -186,31 +225,6 @@ def create_static_text_comparison_widget():
                 </td>
             </tr>
         </table>
-        
-        <div class="text-container">
-            <table class="compare-table">
-                <tr>
-                    <th>Type</th>
-                    <th>Text</th>
-                </tr>
-                <tr>
-                    <td>OCR Output</td>
-                    <td id="ocr-text"></td>
-                </tr>
-                <tr>
-                    <td>Ground Truth</td>
-                    <td id="gt-text"></td>
-                </tr>
-                <tr>
-                    <td>Post Corrected</td>
-                    <td id="post-text"></td>
-                </tr>
-                <tr>
-                    <td>Ground Truth</td>
-                    <td id="gt-text2"></td>
-                </tr>
-            </table>
-        </div>
     </div>
 
     <script>
@@ -229,9 +243,8 @@ def create_static_text_comparison_widget():
                 
                 // Use innerHTML to properly render the HTML within the spans
                 document.getElementById('ocr-text').innerHTML = item.ocr_text;
-                document.getElementById('gt-text').innerHTML = item.gt_text;
                 document.getElementById('post-text').innerHTML = item.post_text;
-                document.getElementById('gt-text2').innerHTML = item.gt_text2;
+                document.getElementById('gt-text').innerHTML = item.gt_text;
                 
                 // Update button states
                 document.getElementById('prev-button').disabled = (currentIndex === 0);
@@ -290,13 +303,7 @@ def create_static_text_comparison_widget():
     with open(fragment_path, 'w', encoding='utf-8') as f:
         f.write(fragment_html)
     
-    # # Save full HTML version for direct viewing
-    # full_path = 'C:\\Users\\intro\\Documents\\sanskrit_ocr_paper\\distill-blog-template\\src\\fragments\\text_comparison_widget_full.html'
-    # with open(full_path, 'w', encoding='utf-8') as f:
-    #     f.write(full_html)
-    
     print(f"Fragment saved at: {fragment_path}")
-    # print(f"Full HTML version saved at: {full_path}")
 
 # Load the data
 def load_data():
