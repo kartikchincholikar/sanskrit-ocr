@@ -74,8 +74,10 @@ def create_static_text_comparison_widget():
     # Pre-process data for all indices
     processed_data = []
     for index in range(min(10, len(df))):
-        ocr_text, gt_text = generate_highlighted_text(df['input_text'].iloc[index], df['target_text'].iloc[index])
-        post_text, gt_text2 = generate_highlighted_text(df['predicted_text'].iloc[index], df['target_text'].iloc[index])
+        ocr_text, _ = generate_highlighted_text(df['input_text'].iloc[index], df['target_text'].iloc[index])
+        post_text, _ = generate_highlighted_text(df['predicted_text'].iloc[index], df['target_text'].iloc[index])
+        # Ground truth is plain text without highlighting
+        gt_text = df['target_text'].iloc[index]
         
         image_src = get_image_as_base64(df['path'].iloc[index])
         
@@ -85,9 +87,8 @@ def create_static_text_comparison_widget():
             'pre_cer': f"{df['pre_cer'].iloc[index]*100:.2f}%",
             'post_cer': f"{df['post_cer'].iloc[index]*100:.2f}%",
             'ocr_text': ocr_text,
-            'gt_text': gt_text,
             'post_text': post_text,
-            'gt_text2': gt_text2
+            'gt_text': gt_text
         })
     
     # Create the fragment HTML - no DOCTYPE, html, head, or body tags
@@ -95,14 +96,16 @@ def create_static_text_comparison_widget():
     <style>
         .widget-container {
             font-family: Arial, sans-serif;
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 20px;
+            padding: 10px;
         }
         .nav-buttons {
             margin-bottom: 20px;
             display: flex;
             gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
         .nav-button {
             padding: 8px 16px;
@@ -130,6 +133,7 @@ def create_static_text_comparison_widget():
         .image-container img {
             max-width: 100%;
             max-height: 200px;
+            object-fit: contain;
         }
         .compare-table {
             width: 100%;
@@ -137,17 +141,21 @@ def create_static_text_comparison_widget():
             margin-bottom: 20px;
             table-layout: fixed; /* Fixed layout to maintain consistent width */
         }
-        .compare-table th, .compare-table td {
+        .compare-table td {
             border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
+            padding: 8px;
+            vertical-align: middle;
+        }
+        .label-column {
+            width: 100px; /* Fixed width for label column */
+            background-color: paleturquoise;
+            font-weight: bold;
+        }
+        .text-column {
+            width: calc(100% - 100px);
             word-wrap: break-word; /* Allow text to wrap */
         }
-        .compare-table th {
-            background-color: paleturquoise;
-            width: 120px; /* Fixed width for label column */
-        }
-        .compare-table tr:nth-child(even) {
+        .text-row:nth-child(even) .text-column {
             background-color: lavender;
         }
         .metrics-table {
@@ -158,12 +166,26 @@ def create_static_text_comparison_widget():
         }
         .text-container {
             overflow-x: auto;
-            min-height: 250px; /* Minimum height for text comparison area */
         }
         /* Make text cells consistent height */
         .text-cell {
             min-height: 24px;
             line-height: 1.5;
+        }
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .label-column {
+                width: 80px;
+                font-size: 14px;
+                padding: 6px;
+            }
+            .text-column {
+                width: calc(100% - 80px);
+                font-size: 14px;
+            }
+            .nav-buttons {
+                justify-content: center;
+            }
         }
     </style>
 
@@ -180,24 +202,20 @@ def create_static_text_comparison_widget():
             <img id="line-image" src="" alt="Line Image">
         </div>
         
-        <!-- Text comparison first, as requested -->
+        <!-- Text comparison first, as requested, with no headers -->
         <div class="text-container">
             <table class="compare-table">
-                <tr>
-                    <th>Type</th>
-                    <th>Text</th>
+                <tr class="text-row">
+                    <td class="label-column">OCR Output</td>
+                    <td class="text-column" id="ocr-text"></td>
                 </tr>
-                <tr>
-                    <td>OCR Output</td>
-                    <td id="ocr-text" class="text-cell"></td>
+                <tr class="text-row">
+                    <td class="label-column">Post Corrected</td>
+                    <td class="text-column" id="post-text"></td>
                 </tr>
-                <tr>
-                    <td>Post Corrected</td>
-                    <td id="post-text" class="text-cell"></td>
-                </tr>
-                <tr>
-                    <td>Ground Truth</td>
-                    <td id="gt-text" class="text-cell"></td>
+                <tr class="text-row">
+                    <td class="label-column">Ground Truth</td>
+                    <td class="text-column" id="gt-text"></td>
                 </tr>
             </table>
         </div>
@@ -205,20 +223,16 @@ def create_static_text_comparison_widget():
         <!-- Metrics table moved below text comparison -->
         <table class="compare-table metrics-table">
             <tr>
-                <th>Metric</th>
-                <th>Value</th>
+                <td class="label-column">CER Before</td>
+                <td class="text-column" id="pre-cer"></td>
             </tr>
             <tr>
-                <td>CER Before Post Correction</td>
-                <td id="pre-cer"></td>
+                <td class="label-column">CER After</td>
+                <td class="text-column" id="post-cer"></td>
             </tr>
             <tr>
-                <td>CER After Post Correction</td>
-                <td id="post-cer"></td>
-            </tr>
-            <tr>
-                <td>Legend</td>
-                <td class="legend">
+                <td class="label-column">Legend</td>
+                <td class="text-column legend">
                     <span style="color:blue;font-weight:bold">Blue</span>: Extra 
                     <span style="color:red;font-weight:bold">Red</span>: Missing 
                     <span style="color:yellow;background-color:#eee;font-weight:bold">Yellow</span>: Replaced
@@ -241,10 +255,12 @@ def create_static_text_comparison_widget():
                 document.getElementById('pre-cer').textContent = item.pre_cer;
                 document.getElementById('post-cer').textContent = item.post_cer;
                 
-                // Use innerHTML to properly render the HTML within the spans
+                // Use innerHTML for OCR and post-corrected to properly render highlights
                 document.getElementById('ocr-text').innerHTML = item.ocr_text;
                 document.getElementById('post-text').innerHTML = item.post_text;
-                document.getElementById('gt-text').innerHTML = item.gt_text;
+                
+                // Use textContent for ground truth (no highlighting)
+                document.getElementById('gt-text').textContent = item.gt_text;
                 
                 // Update button states
                 document.getElementById('prev-button').disabled = (currentIndex === 0);
@@ -290,6 +306,7 @@ def create_static_text_comparison_widget():
     <html>
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>OCR Text Comparison Widget</title>
     </head>
     <body>
