@@ -2105,12 +2105,10 @@ d-appendix > distill-appendix {
           <div>Mar 27, 2025</div>
       </div>
     </div>
-    // <div class="side pdf-download">
-    //   <h3>Download</h3>
-    //   <div>In Pre-print</div>
-    //   // <a href="hf.co">
-    //   // <img style="width: 32px;" src="../assets/images/256px-PDF.png" alt="PDF"></a>
-    // </div>
+    <div class="side pdf-download">
+      <h3>Download</h3>
+      <div>Link coming soon..</div>
+    </div>
 `;
   }
 
@@ -4630,7 +4628,7 @@ d-references {
 
   </style>
   <nav role="navigation" class="table-of-contents"></nav>
-  // <h2>Table of contents</h2>
+  <h2>Table of contents</h2>
   <ul>`;
 
     for (const el of headings) {

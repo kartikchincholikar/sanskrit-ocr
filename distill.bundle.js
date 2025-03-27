@@ -2146,7 +2146,7 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
   function bylineTemplate(frontMatter) {
     return "\n    <div class=\"byline grid\">\n      <div>\n          <h3>Authors</h3>\n          <div>\n              ".concat(frontMatter.authors.map(function (author, i) {
       return "\n              <span class=\"author\">\n        ".concat(author.personalURL ? "\n          <a class=\"name\" href=\"".concat(author.personalURL, "\">").concat(author.name) + (i + 1 < frontMatter.authors.length ? "," : "") + "</a>" : "\n          <span class=\"name\">".concat(author.name) + (i + 1 < frontMatter.authors.length ? "," : "") + "</span>", "\n      </span>\n              ");
-    }).join(''), "\n          </div>\n      </div>\n      <div >\n          <h3>Affiliation</h3>\n          <div><a href=\"hf.co\">FLAME University, Pune</a>\n          </div>\n      </div>\n      <div >\n          <h3>Published</h3>\n          <div>Mar 27, 2025</div>\n      </div>\n    </div>\n    // <div class=\"side pdf-download\">\n    //   <h3>Download</h3>\n    //   <div>In Pre-print</div>\n    //   // <a href=\"hf.co\">\n    //   // <img style=\"width: 32px;\" src=\"../assets/images/256px-PDF.png\" alt=\"PDF\"></a>\n    // </div>\n");
+    }).join(''), "\n          </div>\n      </div>\n      <div >\n          <h3>Affiliation</h3>\n          <div><a href=\"hf.co\">FLAME University, Pune</a>\n          </div>\n      </div>\n      <div >\n          <h3>Published</h3>\n          <div>Mar 27, 2025</div>\n      </div>\n    </div>\n    <div class=\"side pdf-download\">\n      <h3>Download</h3>\n      <div>Link coming soon..</div>\n    </div>\n");
   }
   var Byline = /*#__PURE__*/function (_HTMLElement4) {
     function Byline() {
@@ -4285,7 +4285,7 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
     }]);
   }(/*#__PURE__*/_wrapNativeSuper(HTMLElement));
   function renderTOC(element, headings) {
-    var ToC = "\n  <style>\n\n  d-toc {\n    contain: layout style;\n    display: block;\n  }\n\n  d-toc ul {\n    padding-left: 0;\n  }\n\n  d-toc ul > ul {\n    padding-left: 24px;\n  }\n\n  d-toc a {\n    border-bottom: none;\n    text-decoration: none;\n  }\n\n  </style>\n  <nav role=\"navigation\" class=\"table-of-contents\"></nav>\n  // <h2>Table of contents</h2>\n  <ul>";
+    var ToC = "\n  <style>\n\n  d-toc {\n    contain: layout style;\n    display: block;\n  }\n\n  d-toc ul {\n    padding-left: 0;\n  }\n\n  d-toc ul > ul {\n    padding-left: 24px;\n  }\n\n  d-toc a {\n    border-bottom: none;\n    text-decoration: none;\n  }\n\n  </style>\n  <nav role=\"navigation\" class=\"table-of-contents\"></nav>\n  <h2>Table of contents</h2>\n  <ul>";
     var _iterator18 = _createForOfIteratorHelper(headings),
       _step18;
     try {
