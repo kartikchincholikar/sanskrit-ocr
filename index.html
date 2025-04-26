@@ -104,17 +104,17 @@
     
         <aside>Reading time: 10-15 minutes.</aside>
     
-        <p>There are many out-of-the-box solutions available to digitize documents, but they do not work well on historical handwritten manuscripts. At the Centre for Interdisciplinary Artificial Intelligence, FLAME University, we have used AI to digitize the 500 page Sanskrit manuscript Vādakautūhala (“Delight in Dispute”). This is a text in the school of Mīmāṃsā, a discipline concerned with the analysis of Vedic statements.
+        <p>At the Centre for Interdisciplinary Artificial Intelligence, FLAME University, we have used Aritficial Intelligence to digitize the 500 page Sanskrit manuscript Vādakautūhala (“Delight in Dispute”). This is a text in the school of Mīmāṃsā, a discipline concerned with the analysis of Vedic statements.
         </p>
         
-        <aside>If you have questions or remarks open a discussion on the <a href="https://huggingface.co/spaces/lvwerra/distill-blog-template/discussions?status=open&type=discussion">Community tab</a>!</aside>
+        <!-- <aside>If you have questions or remarks open a discussion on the <a href="https://huggingface.co/spaces/lvwerra/distill-blog-template/discussions?status=open&type=discussion">Community tab</a>!</aside> -->
         
-        <p>Artificial Intelligence, in this application, can be more specifically defined as a combination of three AI models. AI-1 crops where a text line is Fig.1a , and feeds it to AI-2, who then recognizes what the contents of the text line are Fig.1b. </p>
-        <p>The output of AI-2 is not perfect - there are various missing, extra and incorrect characters. This is partly because of scarcity of annotated data, and also partly because the lines of the manuscript are too close to each other such that matras and halants from the line above or below can overlap with the current line. AI-2 incorrectly predicts such instances of overlaps as seen in Fig.1b. As an analogy, one could imagine a human who knows the devanagari script, but not the Sanskrit language, making such mistakes while reading.
+        <p>Artificial Intelligence, in this application, can be more specifically defined as a combination of three AI models. The first AI, analyses the layout of the manuscript page and crops out text-line images. Next, 🤖 taken in the text-line image and recognizes what the contents of the text line are. </p>
+        <p>The output of 🤖 is not perfect - there are various missing, extra and incorrect characters. This is partly because of scarcity of annotated data, and also partly because the lines of the manuscript are too close to each other such that matras and halants from the line above or below can overlap with the current line. As an analogy, one could imagine a human who knows the devanagari script, but not the Sanskrit language, making such mistakes while reading.
         </p>
         <p>On the other hand, Sanskrit experts, who know the script and also the language, do not make such mistakes. Because they know the language, they can intuitively know if a dot is an ‘anuswara’ or a sneaky matra coming from the line above.
         </p>
-        <p>This motivates the need for AI-3, which makes language aware spelling corrections (Fig.1c) to the output of AI-2. To implement this AI-3 in our workflow, we build on top of the Sanskrit Language foundation model “ByT5-Sanskrit”. In other words, we fine-tune (i.e teach) ByT5-Sanskrit to perform this specific task of spelling correction. The dataset which we use to teach ByT5-Sanskrit consists of two columns: one which has the output text of AI-2, and one which has the ground truth text.
+        <p>This motivates the need for 👾, which makes language aware spelling corrections to the output of 🤖. To implement 👾 in our workflow, we build on top of the Sanskrit Language foundation model “ByT5-Sanskrit”. In other words, we fine-tune (i.e teach) ByT5-Sanskrit to perform this specific task of spelling correction. The dataset which we use to teach ByT5-Sanskrit consists of two columns: one which has the output text of 🤖, and one which has the ground truth text.
         </p>
         <p>This is a recurring theme in Natural Language Processing, where a pre-trained foundation Language Model such as ByT5-Sanskrit, is fine-tuned to perform a specific downstream task robustly. </p>
 
