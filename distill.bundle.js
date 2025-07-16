@@ -2146,7 +2146,7 @@ function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
   function bylineTemplate(frontMatter) {
     return "\n    <div class=\"byline grid\">\n      <div>\n          <h3>Authors</h3>\n          <div>\n              ".concat(frontMatter.authors.map(function (author, i) {
       return "\n              <span class=\"author\">\n        ".concat(author.personalURL ? "\n          <a class=\"name\" href=\"".concat(author.personalURL, "\">").concat(author.name) + (i + 1 < frontMatter.authors.length ? "," : "") + "</a>" : "\n          <span class=\"name\">".concat(author.name) + (i + 1 < frontMatter.authors.length ? "," : "") + "</span>", "\n      </span>\n              ");
-    }).join(''), "\n          </div>\n      </div>\n      <div >\n          <h3>Affiliation</h3>\n          <div><a href=\"hf.co\">FLAME University, Pune</a>\n          </div>\n      </div>\n      <div >\n          <h3>Published</h3>\n          <div>Mar 27, 2025</div>\n      </div>\n    </div>\n    <div class=\"side pdf-download\">\n      <h3>Download</h3>\n      <div>Link coming soon..</div>\n    </div>\n");
+    }).join(''), "\n          </div>\n      </div>\n      <div >\n          <h3>Affiliation</h3>\n          <div><a href=\"hf.co\">FLAME University, Pune</a>\n          </div>\n      </div>\n      <div >\n          <h3>Published</h3>\n          <div>Mar 27, 2025</div>\n      </div>\n    </div>\n    <div class=\"side pdf-download\">\n      \n    </div>\n");
   }
   var Byline = /*#__PURE__*/function (_HTMLElement4) {
     function Byline() {

@@ -2105,10 +2105,6 @@ d-appendix > distill-appendix {
           <div>Mar 27, 2025</div>
       </div>
     </div>
-    <div class="side pdf-download">
-      <h3>Download</h3>
-      <div>Link coming soon..</div>
-    </div>
 `;
   }
 
